@@ -17,8 +17,6 @@
 
 """Kraken.com cryptocurrency Exchange API."""
 
-import requests
-
 # private query nonce
 import time
 
@@ -27,8 +25,14 @@ import urllib.parse
 import hashlib
 import hmac
 import base64
+import aiohttp
 
 from . import version
+
+
+class ErrorResponse(Exception):
+    pass
+
 
 class API(object):
     """ Maintains a single session between this machine and Kraken.
@@ -47,6 +51,7 @@ class API(object):
        No query rate limiting is performed.
 
     """
+
     def __init__(self, key='', secret=''):
         """ Create an object with authentication information.
 
@@ -60,12 +65,9 @@ class API(object):
         self.key = key
         self.secret = secret
         self.uri = 'https://api.kraken.com'
-        self.apiversion = '0'
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'krakenex/' + version.__version__ + ' (+' + version.__url__ + ')'
-        })
-        self.response = None
+        self.api_version = '0'
+        self.default_headers = {'User-Agent': 'krakenex/' + version.__version__ + ' (+' + version.__url__ + ')'}
+        self.session = aiohttp.ClientSession(headers=self.default_headers)
         self._json_options = {}
         return
 
@@ -103,7 +105,7 @@ class API(object):
             self.secret = f.readline().strip()
         return
 
-    def _query(self, urlpath, data, headers=None, timeout=None):
+    async def _query(self, urlpath, data, headers=None, timeout=None):
         """ Low-level query handling.
 
         .. note::
@@ -131,16 +133,12 @@ class API(object):
 
         url = self.uri + urlpath
 
-        self.response = self.session.post(url, data = data, headers = headers,
-                                          timeout = timeout)
+        async with self.session.post(url, data=data, headers=headers, timeout=timeout) as response:
+            if self.response.status not in (200, 201, 202):
+                self.response.raise_for_status()
+            return response.json()
 
-        if self.response.status_code not in (200, 201, 202):
-            self.response.raise_for_status()
-
-        return self.response.json(**self._json_options)
-
-
-    def query_public(self, method, data=None, timeout=None):
+    async def query_public(self, method, data=None, timeout=None):
         """ Performs an API query that does not require a valid key/secret pair.
 
         :param method: API method name
@@ -157,11 +155,11 @@ class API(object):
         if data is None:
             data = {}
 
-        urlpath = '/' + self.apiversion + '/public/' + method
+        url_path = '/' + self.api_version + '/public/' + method
 
-        return self._query(urlpath, data, timeout = timeout)
+        return await self._query(url_path, data, timeout=timeout)
 
-    def query_private(self, method, data=None, timeout=None):
+    async def query_private(self, method, data=None, timeout=None):
         """ Performs an API query that requires a valid key/secret pair.
 
         :param method: API method name
@@ -183,14 +181,14 @@ class API(object):
 
         data['nonce'] = self._nonce()
 
-        urlpath = '/' + self.apiversion + '/private/' + method
+        url_path = '/' + self.api_version + '/private/' + method
 
         headers = {
             'API-Key': self.key,
-            'API-Sign': self._sign(data, urlpath)
+            'API-Sign': self._sign(data, url_path)
         }
 
-        return self._query(urlpath, data, headers, timeout = timeout)
+        return await self._query(url_path, data, headers, timeout=timeout)
 
     def _nonce(self):
         """ Nonce counter.
@@ -198,7 +196,7 @@ class API(object):
         :returns: an always-increasing unsigned integer (up to 64 bits wide)
 
         """
-        return int(1000*time.time())
+        return int(1000 * time.time())
 
     def _sign(self, data, urlpath):
         """ Sign request data according to Kraken's scheme.
@@ -209,14 +207,14 @@ class API(object):
         :type urlpath: str
         :returns: signature digest
         """
-        postdata = urllib.parse.urlencode(data)
+        post_data = urllib.parse.urlencode(data)
 
         # Unicode-objects must be encoded before hashing
-        encoded = (str(data['nonce']) + postdata).encode()
+        encoded = (str(data['nonce']) + post_data).encode()
         message = urlpath.encode() + hashlib.sha256(encoded).digest()
 
         signature = hmac.new(base64.b64decode(self.secret),
                              message, hashlib.sha512)
-        sigdigest = base64.b64encode(signature.digest())
+        signature_digest = base64.b64encode(signature.digest())
 
-        return sigdigest.decode()
+        return signature_digest.decode()

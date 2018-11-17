@@ -16,7 +16,7 @@ setup(name='krakenex',
       author_email='veox+packages+spamremove@veox.pw',
       url=__url__,
       install_requires=[
-          'requests>=2.18.2,<3'
+           'aiohttp>=2.2.0'
       ],
       packages=['krakenex'],
       python_requires='>=3.3',

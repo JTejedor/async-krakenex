@@ -8,40 +8,47 @@
 # Maintainer: Austin.Deric@gmail.com (@AustinDeric on github)
 
 import krakenex
+import asyncio
 
-# configure api
-k = krakenex.API()
-k.load_key('kraken.key')
 
-# prepare request
-req_data = {'docalcs': 'true'}
+async def main():
+    # configure api
+    k = krakenex.API()
+    k.load_key('test-kraken.key')
 
-# query servers
-start = k.query_public('Time')
-open_positions = k.query_private('OpenPositions', req_data)
-end = k.query_public('Time')
-latency = end['result']['unixtime'] - start['result']['unixtime']
+    # prepare request
+    req_data = {'docalcs': 'true'}
 
-# parse result
-b, c = 0, 0
+    # query servers
+    start = k.query_public('Time')
+    open_positions = await k.query_private('OpenPositions', req_data)
+    end = await k.query_public('Time')
+    latency = end['result']['unixtime'] - start['result']['unixtime']
 
-for order in open_positions['result']:
-    coin = order["pair"]
-    if coin == 'XETHZUSD':
-        b += (float(order['vol']))
-    elif coin == 'XXBTZUSD':
-        c += (float(order['vol']))
+    # parse result
+    b, c = 0, 0
 
-n_errors = len(open_positions['error'])
-total = len(open_positions['result'])
+    for order in open_positions['result']:
+        coin = order["pair"]
+        if coin == 'XETHZUSD':
+            b += (float(order['vol']))
+        elif coin == 'XXBTZUSD':
+            c += (float(order['vol']))
 
-msg = """
-error counts: {n_errors}
-latency: {latency}
+    n_errors = len(open_positions['error'])
+    total = len(open_positions['result'])
 
-open orders
-    eth: {b}
-    btc: {c}
-    total: {total}
-"""
-print(msg.format(n_errors=n_errors, total=total, b=b, c=c, latency=latency))
+    msg = """
+    error counts: {n_errors}
+    latency: {latency}
+    
+    open orders
+        eth: {b}
+        btc: {c}
+        total: {total}
+    """
+    print(msg.format(n_errors=n_errors, total=total, b=b, c=c, latency=latency))
+
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
