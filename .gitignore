@@ -45,3 +45,7 @@ nosetests.xml
 *.key
 *.secret
 *.pickle
+
+
+#idea IDE
+.idea
