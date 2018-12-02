@@ -8,13 +8,26 @@
 from requests.exceptions import HTTPError
 
 import krakenex
+import asyncio
 
 import pprint
 
-kraken = krakenex.API()
 
-try:
-    response = kraken.query_public('Depth', {'pair': 'XXBTZUSD', 'count': '10'})
-    pprint.pprint(response)
-except HTTPError as e:
-    print(str(e))
+async def print_depth():
+    kraken = krakenex.API()
+    try:
+        response = await kraken.query_public('Depth', {'pair': 'XXBTZUSD', 'count': '10'})
+        pprint.pprint(response)
+    except HTTPError as e:
+        print(str(e))
+    finally:
+        await kraken.close()
+
+
+def main():
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(print_depth())
+
+
+if __name__ == "__main__":
+    main()

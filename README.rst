@@ -17,6 +17,9 @@
 
 Kraken.com exchange API, Python 3 package.
 
+Asynchronous mode, based on original project
+
+
 This package is intentionally as lean as possible, and only
 provides a minimal interface to the `Kraken`_ cryptocurrency
 exchange.

@@ -27,8 +27,9 @@ import hmac
 import base64
 import aiohttp
 
-from . import version
 
+from . import version
+from typing import Dict
 
 class ErrorResponse(Exception):
     pass
@@ -81,13 +82,14 @@ class API(object):
         self._json_options = kwargs
         return self
 
-    def close(self):
+    async def close(self):
         """ Close this session.
 
         :returns: None
 
         """
-        self.session.close()
+        if self.session is not None:
+            await self.session.close()
         return
 
     def load_key(self, path):
@@ -134,9 +136,10 @@ class API(object):
         url = self.uri + urlpath
 
         async with self.session.post(url, data=data, headers=headers, timeout=timeout) as response:
-            if self.response.status not in (200, 201, 202):
-                self.response.raise_for_status()
-            return response.json()
+            if response.status not in (200, 201, 202):
+                response.raise_for_status()
+            result = await response.json()
+        return result
 
     async def query_public(self, method, data=None, timeout=None):
         """ Performs an API query that does not require a valid key/secret pair.
