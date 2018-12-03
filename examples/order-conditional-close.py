@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This file is part of krakenex.
+# This file is part of asynckrakenex.
 # Licensed under the Simplified BSD license. See `examples/LICENSE.txt`.
 
 # Demonstrates how to use the conditional close functionality; that is,
@@ -12,10 +12,10 @@
 # Complex nesting seems to not be allowed by Kraken. See:
 # https://github.com/veox/python3-krakenex/issues/39
 
-import krakenex
+import asynckrakenex
 
 def main():
-    kraken = krakenex.API()
+    kraken = asynckrakenex.API()
     kraken.load_key('kraken.key')
 
     response = kraken.query_private('AddOrder',

@@ -1,17 +1,17 @@
-# This file is part of krakenex.
+# This file is part of asynckrakenex.
 #
-# krakenex is free software: you can redistribute it and/or modify it
+# asynckrakenex is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# krakenex is distributed in the hope that it will be useful,
+# asynckrakenex is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser
-# General Public LICENSE along with krakenex. If not, see
+# General Public LICENSE along with asynckrakenex. If not, see
 # <http://www.gnu.org/licenses/lgpl-3.0.txt> and
 # <http://www.gnu.org/licenses/gpl-3.0.txt>.
 
@@ -27,9 +27,7 @@ import hmac
 import base64
 import aiohttp
 
-
 from . import version
-from typing import Dict
 
 class ErrorResponse(Exception):
     pass
@@ -67,7 +65,7 @@ class API(object):
         self.secret = secret
         self.uri = 'https://api.kraken.com'
         self.api_version = '0'
-        self.default_headers = {'User-Agent': 'krakenex/' + version.__version__ + ' (+' + version.__url__ + ')'}
+        self.default_headers = {'User-Agent': 'asynckrakenex/' + version.__version__ + ' (+' + version.__url__ + ')'}
         self.session = aiohttp.ClientSession(headers=self.default_headers)
         self._json_options = {}
         return

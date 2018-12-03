@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 
-# This file is part of krakenex.
+# This file is part of asynckrakenex.
 # Licensed under the Simplified BSD license. See `examples/LICENSE.txt`.
 
 # Get balance available for trading/withdrawal (not on orders).
 #
 # NOTE: Assumes regular orders. Margin positions are not taken into account!
 #
-# FIXME: Also shows how current krakenex usage has too much sugar.
+# FIXME: Also shows how current asynckrakenex usage has too much sugar.
 
-import krakenex
+import asynckrakenex
 
 from decimal import Decimal as D
 import pprint
 
-k = krakenex.API()
+k = asynckrakenex.API()
 k.load_key('kraken.key')
 
 balance = k.query_private('Balance')

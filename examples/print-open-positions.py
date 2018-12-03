@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
-# This file is part of krakenex.
+# This file is part of asynckrakenex.
 # Licensed under the Simplified BSD license. See `examples/LICENSE.txt`.
 
 # FIXME: Prints the sum of _some_ open positions?..
 
 # Maintainer: Austin.Deric@gmail.com (@AustinDeric on github)
 
-import krakenex
+import asynckrakenex
 import asyncio
 
 
 async def print_open_poisition():
     # configure api
-    k = krakenex.API()
+    k = asynckrakenex.API()
     k.load_key('test-kraken.key')
 
     # prepare request
@@ -51,11 +51,5 @@ async def print_open_poisition():
     finally:
         await k.close()
 
-
-def main():
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(print_open_poisition())
-
-
-if __name__ == "__main__":
-    main()
+loop = asyncio.get_event_loop()
+loop.run_until_complete(print_open_poisition())

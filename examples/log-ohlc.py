@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-# This file is part of krakenex.
+# This file is part of asynckrakenex.
 # Licensed under the Simplified BSD license. See `examples/LICENSE.txt`.
 
 # To debug historic OHLC data inconcistencies, as discussed here:
 # https://www.reddit.com/r/kraken_traders/comments/6f6e9h/krakenapi_delivering_inconsistent_false_ohlc_data/
 
-import krakenex
+import asynckrakenex
 
 import decimal
 import time
@@ -16,7 +16,7 @@ pair = 'XETHZEUR'
 # data up to 12 hours old only!
 since = str(1499000000) # UTC 2017-07-02 12:53:20
 
-k = krakenex.API()
+k = asynckrakenex.API()
 
 def now():
     return decimal.Decimal(time.time())
