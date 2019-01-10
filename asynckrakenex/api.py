@@ -70,7 +70,7 @@ class API(object):
         self._json_options = {}
         return
 
-    def json_options(self, **kwargs):
+    def __json_options(self, **kwargs):
         """ Set keyword arguments to be passed to JSON deserialization.
 
         :param kwargs: passed to :py:meth:`requests.Response.json`
@@ -90,7 +90,7 @@ class API(object):
             await self.session.close()
         return
 
-    def load_key(self, path):
+    def __load_key(self, path):
         """ Load key and secret from file.
 
         Expected file format is key and secret on separate lines.
@@ -105,7 +105,7 @@ class API(object):
             self.secret = f.readline().strip()
         return
 
-    async def _query(self, urlpath, data, headers=None, timeout=None):
+    async def __query(self, urlpath, data, headers=None, timeout=None):
         """ Low-level query handling.
 
         .. note::
@@ -158,7 +158,7 @@ class API(object):
 
         url_path = '/' + self.api_version + '/public/' + method
 
-        return await self._query(url_path, data, timeout=timeout)
+        return await self.__query(url_path, data, timeout=timeout)
 
     async def query_private(self, method, data=None, timeout=None):
         """ Performs an API query that requires a valid key/secret pair.
@@ -191,7 +191,8 @@ class API(object):
 
         return await self._query(url_path, data, headers, timeout=timeout)
 
-    def _nonce(self):
+    @staticmethod
+    def __nonce():
         """ Nonce counter.
 
         :returns: an always-increasing unsigned integer (up to 64 bits wide)
@@ -199,7 +200,7 @@ class API(object):
         """
         return int(1000 * time.time())
 
-    def _sign(self, data, urlpath):
+    def __sign(self, data, urlpath):
         """ Sign request data according to Kraken's scheme.
 
         :param data: API request parameters

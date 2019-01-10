@@ -45,6 +45,7 @@ nosetests.xml
 *.key
 *.secret
 *.pickle
+examples/kraken.key
 
 
 #idea IDE
