@@ -11,7 +11,7 @@ import asynckrakenex
 import asyncio
 
 
-async def print_open_poisition():
+async def print_open_positions():
     # configure api
     k = asynckrakenex.API()
     k.load_key('test-kraken.key')
@@ -52,4 +52,4 @@ async def print_open_poisition():
         await k.close()
 
 loop = asyncio.get_event_loop()
-loop.run_until_complete(print_open_poisition())
+loop.run_until_complete(print_open_positions())

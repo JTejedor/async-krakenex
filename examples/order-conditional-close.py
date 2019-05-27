@@ -13,12 +13,14 @@
 # https://github.com/veox/python3-krakenex/issues/39
 
 import asynckrakenex
+import asyncio
 
-def main():
+
+async def order_conditional_close():
     kraken = asynckrakenex.API()
-    kraken.load_key('kraken.key')
-
-    response = kraken.query_private('AddOrder',
+    kraken.load_key('test-kraken.key')
+    try:
+        response = await kraken.query_private('AddOrder',
                                     {'pair': 'XXBTZEUR',
                                      'type': 'buy',
                                      'ordertype': 'limit',
@@ -27,12 +29,16 @@ def main():
                                      # `ordertype`, `price`, `price2` are valid
                                      'close[ordertype]': 'limit',
                                      'close[price]': '9001',
+                                     # Only validate!
+                                     'validate': 'true',
                                      # these will be ignored!
                                      'close[pair]': 'XXBTZEUR',
                                      'close[type]': 'sell',
                                      'close[volume]': '1'})
-    return response
+        print(response)
+    finally:
+        await kraken.close()
 
-if __name__ == '__main__':
-    ret = main()
-    print(ret)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(order_conditional_close())

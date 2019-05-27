@@ -7,48 +7,54 @@
 # https://www.reddit.com/r/kraken_traders/comments/6f6e9h/krakenapi_delivering_inconsistent_false_ohlc_data/
 
 import asynckrakenex
+import asyncio
 
 import decimal
 import time
 
-pair = 'XETHZEUR'
-# NOTE: for the (default) 1-minute granularity, the API seems to provide
-# data up to 12 hours old only!
-since = str(1499000000) # UTC 2017-07-02 12:53:20
 
-k = asynckrakenex.API()
+async def log_ohlc():
+    pair = 'XETHZEUR'
+    # NOTE: for the (default) 1-minute granularity, the API seems to provide
+    # data up to 12 hours old only!
+    since = str(1499000000) # UTC 2017-07-02 12:53:20
 
-def now():
-    return decimal.Decimal(time.time())
+    k = asynckrakenex.API()
 
-def lineprint(msg, targetlen = 72):
-    line = '-'*5 + ' '
-    line += str(msg)
+    def now():
+        return decimal.Decimal(time.time())
 
-    l = len(line)
-    if l < targetlen:
-        trail = ' ' + '-'*(targetlen-l-1)
-        line += trail
+    def lineprint(msg, targetlen = 72):
+        line = '-'*5 + ' '
+        line += str(msg)
 
-    print(line)
-    return
+        l = len(line)
+        if l < targetlen:
+            trail = ' ' + '-'*(targetlen-l-1)
+            line += trail
 
-while True:
-    lineprint(now())
+        print(line)
+        return
 
-    before = now()
-    ret = k.query_public('OHLC', data = {'pair': pair, 'since': since})
-    after = now()
+    while True:
+        lineprint(now())
 
-    # comment out to track the same "since"
-    #since = ret['result']['last']
+        before = now()
+        ret = await k.query_public('OHLC', data = {'pair': pair, 'since': since})
+        after = now()
 
-    # TODO: don't repeat-print if list too short
-    bars = ret['result'][pair]
-    for b in bars[:5]: print(b)
-    print('...')
-    for b in bars[-5:]: print(b)
+        # comment out to track the same "since"
+        #since = ret['result']['last']
 
-    lineprint(after - before)
+        # TODO: don't repeat-print if list too short
+        bars = ret['result'][pair]
+        for b in bars[:5]: print(b)
+        print('...')
+        for b in bars[-5:]: print(b)
 
-    time.sleep(20)
+        lineprint(after - before)
+
+        time.sleep(20)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(log_ohlc())

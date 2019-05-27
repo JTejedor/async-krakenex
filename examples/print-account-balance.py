@@ -6,8 +6,14 @@
 # Prints the account blance to standard output.
 
 import asynckrakenex
+import asyncio
 
-k = asynckrakenex.API()
-k.load_key('kraken.key')
 
-print(k.query_private('Balance'))
+async def print_account_balance():
+    async with asynckrakenex.API.from_filename('test-kraken.key') as k:
+        p = await k.query_private('Balance')
+        print(p)
+
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(print_account_balance())
